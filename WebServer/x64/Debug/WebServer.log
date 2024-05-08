@@ -1,0 +1,16 @@
+﻿  App.cpp
+D:\repos\WebServer\Socket\include\Socket.h(22,17): warning C4244: “参数”: 从“CppWeb::ulong”转换到“u_short”，可能丢失数据
+D:\repos\WebServer\WebServer\src\core\HttpRequestHandler.h(11,3): warning C4091: “static ”: 没有声明变量时忽略“CppWeb::HttpPathHash”的左侧
+  Application.cpp
+D:\repos\WebServer\Socket\include\Socket.h(22,17): warning C4244: “参数”: 从“CppWeb::ulong”转换到“u_short”，可能丢失数据
+D:\repos\WebServer\WebServer\src\core\HttpRequestHandler.h(11,3): warning C4091: “static ”: 没有声明变量时忽略“CppWeb::HttpPathHash”的左侧
+D:\repos\WebServer\WebServer\src\impl\Application.cpp(81,59): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\repos\WebServer\WebServer\src\impl\Application.cpp(87,59): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+D:\repos\WebServer\WebServer\src\impl\Application.cpp(95,57): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+  HttpRequestHandler.cpp
+D:\repos\WebServer\Socket\include\Socket.h(22,17): warning C4244: “参数”: 从“CppWeb::ulong”转换到“u_short”，可能丢失数据
+D:\repos\WebServer\WebServer\src\core\HttpRequestHandler.h(11,3): warning C4091: “static ”: 没有声明变量时忽略“CppWeb::HttpPathHash”的左侧
+  SimpleController.cpp
+D:\repos\WebServer\Socket\include\Socket.h(22,17): warning C4244: “参数”: 从“CppWeb::ulong”转换到“u_short”，可能丢失数据
+  正在生成代码...
+  WebServer.vcxproj -> D:\repos\WebServer\x64\Debug\WebServer.exe
