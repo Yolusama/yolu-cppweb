@@ -1,7 +1,0 @@
-﻿  Socket.cpp
-D:\repos\WebServer\Socket\include\Socket.h(22,17): warning C4244: “参数”: 从“CppWeb::ulong”转换到“u_short”，可能丢失数据
-D:\repos\WebServer\Socket\impl\Socket.cpp(32,42): warning C4244: “=”: 从“CppWeb::ulong”转换到“USHORT”，可能丢失数据
-D:\repos\WebServer\Socket\impl\Socket.cpp(62): warning C4172: 返回局部变量或临时变量的地址: _socket
-D:\repos\WebServer\Socket\impl\Socket.cpp(80): warning C4172: 返回局部变量或临时变量的地址
-D:\repos\WebServer\Socket\impl\Socket.cpp(82): warning C4172: 返回局部变量或临时变量的地址
-  Socket.vcxproj -> D:\repos\WebServer\x64\Debug\Socket.lib
