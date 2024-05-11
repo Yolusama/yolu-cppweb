@@ -1,11 +1,12 @@
 #include "../core/Application.h"
 #include <string>
 #include <iostream>
-#include<fstream>
-#include<chrono>
+#include <fstream>
+#include <chrono>
 #include "../core/EntryPoint.h"
 #include "../test/SimpleController.h"
-#include"../core/ThreadPool.hpp"
+#include "../core/ThreadPool.hpp"
+#include "../test/TestInterceptor.h"
 
 namespace CppWeb
 {
@@ -22,7 +23,17 @@ namespace CppWeb
 		server->setPort(data["Port"]);
 		server->Bind();
 		server->Listen(data["ListenCount"]);
-		std::cout << "服务器访问地址：" << data["Host"] << ",端口号：" << data["Port"] << '\n';
+		std::cout << "服务器访问地址：http://" << (std::string)data["Host"] << ':' << data["Port"] << '\n';
+		corsConfig = CorsVerifier::Create("default");
+		Json cors = configuration["Cors"];
+		std::vector<std::string> origins;
+		for (const auto& origin : cors["AllowedOrigins"])
+		{
+			origins.push_back((std::string)origin);
+		}
+		corsConfig->AddOrigins(origins);
+		corsConfig->AlloweAllMethods();
+		intercptor.reset(new TestInterceptor({"/Test"}));
 		ThreadPool::Init();
 		if (Instance == nullptr)
 		{
@@ -33,6 +44,8 @@ namespace CppWeb
 			std::cerr << "Application has initialized!\n";
 		}
 		InitRequstUrls();
+		//启用跨域策略“default”,不启用跨域不会奏效
+		//CorsVerifier::Use("default");
 	}
 	using namespace std::chrono;
 	void Application::Run()
@@ -55,6 +68,7 @@ namespace CppWeb
 					_res.assign(buffer, buffer + recvBytes);
 				HttpRequest request(_res);
 				HttpResponse response;
+				corsConfig->AllowCredentials(response);
 				std::cout << _res << "\n";
 				std::string res;
 				if (recvBytes > 0 && _res.find("/favicon.ico") == std::string::npos)
@@ -66,7 +80,8 @@ namespace CppWeb
 						if (HttpPath::PathExists(*path))
 						{
 							HttpPath::VerifyRequest(*path,request,response);
-							if (response.GetStatusCode() == OK)
+							CorsVerifier::Check(request, response);
+							if (response.GetStatusCode() == OK && intercptor->PreHandle(*path,request,response))
 							{
 								response.SetUrl(request.GetUrl());
 								path->InitialRequestParams(request);
@@ -80,6 +95,7 @@ namespace CppWeb
 							res = response.GetResult();
 							server->Send(client, (Byte*)res.c_str(), res.length(), 0);
 							std::cout << "收到访问请求...\n";
+							intercptor->AfterHandle(request, response);
 						}
 						else
 						{
@@ -109,6 +125,7 @@ namespace CppWeb
 		
 		HttpPath path1("/Test", {}, {});
 		requestHandler.AddHandler(path1, [&](HttpRequest& req, HttpResponse& res) {
+			res.SetHeader("Conteent-Type", "text/plain");
 			res.SetResult(sc.Test());
 			});
 		HttpPath path2("/Test1", {"num"}, {});

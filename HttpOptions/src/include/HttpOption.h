@@ -41,6 +41,7 @@ namespace CppWeb
 		int GetStatusCode()const;
 		const std::string& Get(const std::string& key)const;
 		const std::string& GetVersion() const;
+		std::vector<std::string> HeaderKeys()const;
 		friend class HttpResponse;
 	};
 
@@ -70,6 +71,7 @@ namespace CppWeb
 		const std::map<std::string,std::string>& QueryString()const;
 		const std::unordered_map<std::string,std::string>& PathVaribles()const;
 		const std::string& GetHeader(const std::string& header)const;
+		std::vector<std::string> GetHeaders()const;
 		const Json& RequestBody()const;
 		HttpMethod GetMethod()const;
 	};

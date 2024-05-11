@@ -129,6 +129,11 @@ namespace CppWeb
 		return headers.Get(header);
 	}
 
+	std::vector<std::string> HttpRequest::GetHeaders() const
+	{
+		return headers.HeaderKeys();
+	}
+
 	const Json& HttpRequest::RequestBody() const
 	{
 		return requestBody;
@@ -285,6 +290,14 @@ namespace CppWeb
 	const std::string& HttpHeaders::GetVersion() const
 	{
 		return version;
+	}
+
+	std::vector<std::string> HttpHeaders::HeaderKeys() const
+	{
+		std::vector<std::string> res;
+		for (auto it = headers.begin(); it != headers.end(); it++)
+			res.push_back(it->first);
+			return res;
 	}
 
 	std::set<HttpPath> HttpPath::Paths;
