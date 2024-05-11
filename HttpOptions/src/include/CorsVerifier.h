@@ -6,31 +6,32 @@
 
 namespace CppWeb
 {
+
 	class CorsVerifier
 	{
 	private:
 		std::unordered_set<std::string> origins;
 		std::unordered_set<std::string> notAllowedHeaders;
 		std::unordered_set<HttpMethod> allowedMethods;
+		bool allowCredentials;
 	private:
 		CorsVerifier()
 		{
-
+			allowCredentials = false;
 		}
 		bool CheckHeaders(const std::vector<std::string>& headers);
 		bool CheckMethod(HttpMethod method);
 		static std::unordered_map<std::string,std::shared_ptr<CorsVerifier>> CorsPolicy;
-		static CorsVerifier* Instance;
+		static Ref<CorsVerifier> Instance;
 	public:
-		 void AddOrigins(const std::vector<std::string>& origins);
-		 void AllowAllOrigin(HttpResponse& response);
-		 
-		 void AddNotAllowedHeaders(const std::initializer_list<std::string>& headers);
-		 void AlloweAllMethods();
-		 void AllowMethods(const std::initializer_list<HttpMethod>& methods);
-		 void AllowCredentials(HttpResponse& response);
+		 CorsVerifier& AddOrigins(const std::vector<std::string>& origins);
+		 CorsVerifier& AllowAllOrigin();
+		 CorsVerifier& AddNotAllowedHeaders(const std::initializer_list<std::string>& headers);
+		 CorsVerifier& AlloweAllMethods();
+		 CorsVerifier& AllowMethods(const std::initializer_list<HttpMethod>& methods);
+		 CorsVerifier& AllowCredentials();
 		 static void Check(const HttpRequest& request, HttpResponse& response);
-		 static std::shared_ptr<CorsVerifier> Create(const std::string& policyName);
+		 static void Create(const std::string& policyName,const std::function<void(CorsVerifier&)>& corsFunc);
 		 static void Use(const std::string& policyName);
 	};
 }

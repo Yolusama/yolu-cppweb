@@ -274,7 +274,14 @@ namespace CppWeb
 
 	const std::string& HttpHeaders::Get(const std::string& key) const
 	{
-		return headers.at(key);
+		if (Has(key))
+			return headers.at(key);
+		else return "";
+	}
+
+	bool HttpHeaders::Has(const std::string& key)const
+	{
+		return headers.contains(key);
 	}
 
 	int HttpHeaders::GetStatusCode() const

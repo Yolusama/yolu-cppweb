@@ -3,7 +3,7 @@
 namespace CppWeb
 {
 	std::unordered_map<std::string, std::shared_ptr<CorsVerifier>> CorsVerifier::CorsPolicy;
-	CorsVerifier* CorsVerifier::Instance = nullptr;
+	Ref<CorsVerifier> CorsVerifier::Instance = nullptr;
 
 	bool CorsVerifier::CheckHeaders(const std::vector<std::string>& headers)
 	{
@@ -20,39 +20,47 @@ namespace CppWeb
 		return allowedMethods.find(method) != allowedMethods.end();
 	}
 
-	void CorsVerifier::AddOrigins(const std::vector<std::string>& origins)
+	CorsVerifier& CorsVerifier::AddOrigins(const std::vector<std::string>& origins)
 	{
 		for(const std::string& origin : origins)
 			this->origins.insert(origin);
+		return *this;
 	}
 
-	void CorsVerifier::AddNotAllowedHeaders(const std::initializer_list<std::string>& headers)
+	CorsVerifier& CorsVerifier::AddNotAllowedHeaders(const std::initializer_list<std::string>& headers)
 	{
 		notAllowedHeaders = headers;
+		return *this;
 	}
 
-	void CorsVerifier::AlloweAllMethods()
+	CorsVerifier& CorsVerifier::AlloweAllMethods()
 	{
 		allowedMethods.insert({
 			HttpMethod::GET,HttpMethod::POST,HttpMethod::HEAD,
 			HttpMethod::PATCH,HttpMethod::_DELETE,HttpMethod::PUT
 			});
+		return *this;
 	}
 
-	void CorsVerifier::AllowMethods(const std::initializer_list<HttpMethod>& methods)
+	CorsVerifier& CorsVerifier::AllowMethods(const std::initializer_list<HttpMethod>& methods)
 	{
 		allowedMethods.insert(methods);
+		return *this;
 	}
 
-	void CorsVerifier::AllowAllOrigin(HttpResponse& response)
+	CorsVerifier& CorsVerifier::AllowAllOrigin()
 	{
-		response.SetHeader("Access-Control-Allow-Origin", "*");
+		origins.insert("*");
+		return *this;
 	}
 
 	void CorsVerifier::Check(const HttpRequest& request,HttpResponse& response)
 	{
 		if (!Instance)return;
-		auto it = Instance->origins.find(request.GetHeader("Origin"));
+		std::string origin = request.GetHeader("Origin");
+		if (origin == "")
+			return;
+		auto it = Instance->origins.find(origin);
 		if (it != Instance->origins.end())
 		{
 			if (!Instance->CheckMethod(request.GetMethod()))
@@ -63,26 +71,44 @@ namespace CppWeb
 			{
 				return;
 			}
+			if(Instance->allowCredentials)
+			   response.SetHeader("Access-Control-Allow-Credentials", "true");
 			response.SetHeader("Access-Control-Allow-Origin", *it);
+		}
+		else {
+			if (Instance->origins.find("*") == Instance->origins.end())return;
+			if (!Instance->CheckMethod(request.GetMethod()))
+			{
+				return;
+			}
+			if (!Instance->CheckHeaders(request.GetHeaders()))
+			{
+				return;
+			}
+			if (Instance->allowCredentials)
+				response.SetHeader("Access-Control-Allow-Credentials", "true");
+			response.SetHeader("Access-Control-Allow-Origin", "*");
 		}
 	}
 
-	void CorsVerifier::AllowCredentials(HttpResponse& response)
+	void CorsVerifier::Create(const std::string& policyName, const std::function<void(CorsVerifier&)>& corsFunc)
 	{
-		response.SetHeader("Access-Control-Allow-Credentials", "true");
+		Ref<CorsVerifier>instance(new CorsVerifier());
+		corsFunc(*instance);
+		CorsPolicy[policyName] = instance;
 	}
 
-	std::shared_ptr<CorsVerifier> CorsVerifier::Create(const std::string& policyName)
+	CorsVerifier& CorsVerifier::AllowCredentials()
 	{
-		std::shared_ptr<CorsVerifier>instance(new CorsVerifier());
-		CorsPolicy[policyName] = instance;
-		return instance;
+		allowCredentials = true;
+		return *this;
 	}
+
 
 	void CorsVerifier::Use(const std::string& policyName)
 	{
 		if (CorsPolicy.find(policyName) != CorsPolicy.end())
-			Instance = CorsPolicy[policyName].get();
+			Instance = CorsPolicy[policyName];
 		else return;
 	}
 

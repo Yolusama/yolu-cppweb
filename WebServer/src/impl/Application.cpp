@@ -24,15 +24,20 @@ namespace CppWeb
 		server->Bind();
 		server->Listen(data["ListenCount"]);
 		std::cout << "服务器访问地址：http://" << (std::string)data["Host"] << ':' << data["Port"] << '\n';
-		corsConfig = CorsVerifier::Create("default");
 		Json cors = configuration["Cors"];
 		std::vector<std::string> origins;
 		for (const auto& origin : cors["AllowedOrigins"])
 		{
 			origins.push_back((std::string)origin);
 		}
-		corsConfig->AddOrigins(origins);
-		corsConfig->AlloweAllMethods();
+
+		CorsVerifier::Create("default", [&](CorsVerifier& verifier) {
+			verifier
+				.AddOrigins(origins)
+				.AllowCredentials()
+				.AlloweAllMethods();
+			});
+		
 		intercptor.reset(new TestInterceptor({"/Test"}));
 		ThreadPool::Init();
 		if (Instance == nullptr)
@@ -45,7 +50,7 @@ namespace CppWeb
 		}
 		InitRequstUrls();
 		//启用跨域策略“default”,不启用跨域不会奏效
-		//CorsVerifier::Use("default");
+		CorsVerifier::Use("default");
 	}
 	using namespace std::chrono;
 	void Application::Run()
@@ -68,7 +73,6 @@ namespace CppWeb
 					_res.assign(buffer, buffer + recvBytes);
 				HttpRequest request(_res);
 				HttpResponse response;
-				corsConfig->AllowCredentials(response);
 				std::cout << _res << "\n";
 				std::string res;
 				if (recvBytes > 0 && _res.find("/favicon.ico") == std::string::npos)

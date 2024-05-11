@@ -21,6 +21,10 @@ namespace CppWeb
 {
 	namespace CppJson = nlohmann;
 	using Json = CppJson::json;
+
+	template<class T>
+	using Ref = std::shared_ptr<T>;
+
 	enum class HttpMethod
 	{
 		GET = 1, POST = 3, _DELETE = 6, PUT = 8, PATCH = 11, HEAD = 12
@@ -40,6 +44,7 @@ namespace CppWeb
 		void SetStatusCode(int code);
 		int GetStatusCode()const;
 		const std::string& Get(const std::string& key)const;
+		bool Has(const std::string& key)const;
 		const std::string& GetVersion() const;
 		std::vector<std::string> HeaderKeys()const;
 		friend class HttpResponse;

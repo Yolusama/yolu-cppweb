@@ -15,7 +15,6 @@ namespace CppWeb {
 		ScopeRef<Socket> server;
 		Json configuration;
 		HttpRequestHandler requestHandler;
-		Ref<CorsVerifier> corsConfig;
 		Ref<HttpRequestInterceptor> intercptor;
 	public:
 		static Application* Instance;
